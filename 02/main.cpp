@@ -88,9 +88,42 @@ bool check_game_playable(map<string, int> bag, Game game)
   return true;
 }
 
+map<string, int> find_min_bag(Game game)
+{
+  map<string, int> min_bag;
+
+  for (auto const &record : game.records)
+  {
+    for (auto const &pair : record)
+    {
+      if (min_bag.count(pair.first))
+      {
+        min_bag[pair.first] = pair.second > min_bag[pair.first]
+                                  ? pair.second
+                                  : min_bag[pair.first];
+      }
+      else
+      {
+        min_bag[pair.first] = pair.second;
+      }
+    }
+  }
+
+  return min_bag;
+}
+
+int find_bag_power(map<string, int> bag)
+{
+  int v = 1;
+  for (auto const &pair : bag)
+  {
+    v *= pair.second;
+  }
+  return v;
+}
+
 int main()
 {
-
   vector<Game> games;
 
   string line;
@@ -105,21 +138,32 @@ int main()
   }
   file.close();
 
+  // Part 1
+
   map<string, int> bag;
   bag["red"] = 12;
   bag["green"] = 13;
   bag["blue"] = 14;
 
-  int acc = 0;
-
+  int game_id_sum = 0;
   for (auto const &game : games)
   {
     if (check_game_playable(bag, game))
     {
-      acc += game.id;
+      game_id_sum += game.id;
     }
   }
 
-  cout << "ANSWER: " << acc << endl;
+  cout << "ANSWER: " << game_id_sum << endl;
+
+  // Part 2
+  int power_sum = 0;
+  for (auto const &game : games)
+  {
+    map<string, int> min_bag = find_min_bag(game);
+    power_sum += find_bag_power(min_bag);
+  }
+  cout << "ANSWER: " << power_sum << endl;
+
   return 0;
 }
